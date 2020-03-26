@@ -13,10 +13,16 @@ def proof_of_work(block):
     in an effort to find a number that is a valid proof
     :return: A valid proof for the provided block
     """
-    pass
+    block_string = json.dumps(block, sort_keys=True)
+
+    new_proof = 0
+    while valid_proof(block_string, new_proof) is False:
+        new_proof += 1
+
+    return new_proof
 
 
-def valid_proof(block_string, proof):
+def valid_proof(block_string, new_proof):
     """
     Validates the Proof:  Does hash(block_string, proof) contain 6
     leading zeroes?  Return true if the proof is valid
@@ -27,7 +33,10 @@ def valid_proof(block_string, proof):
     correct number of leading zeroes.
     :return: True if the resulting hash is a valid proof, False otherwise
     """
-    pass
+    guess = f'{block_string}{new_proof}'.encode()
+    guess_hash = hashlib.sha256(guess).hexdigest()
+
+    return guess_hash[:3] == "000"
 
 
 if __name__ == '__main__':
@@ -42,13 +51,14 @@ if __name__ == '__main__':
     id = f.read()
     print("ID is", id)
     f.close()
-
+    acc = 0
     # Run forever until interrupted
     while True:
         r = requests.get(url=node + "/last_block")
         # Handle non-json response
         try:
             data = r.json()
+            print("data from get", data)
         except ValueError:
             print("Error:  Non-json response")
             print("Response returned:")
@@ -57,14 +67,31 @@ if __name__ == '__main__':
 
         # TODO: Get the block from `data` and use it to look for a new proof
         # new_proof = ???
-
+        # block data here
         # When found, POST it to the server {"proof": new_proof, "id": id}
+
+        block_string = json.dumps(data, sort_keys=True)
+        acc += 1
+        new_proofO = proof_of_work(data)
+        proofValidO = valid_proof(block_string, new_proofO)
+
+        new_proof = proof_of_work(data) + acc
+        proofValid = valid_proof(block_string, new_proof)
+        #print("Onew_proof", new_proofO,  "Oproof validified?", proofValidO)
+        print("new_proof", new_proof,  "proof validified?", proofValid)
         post_data = {"proof": new_proof, "id": id}
 
         r = requests.post(url=node + "/mine", json=post_data)
         data = r.json()
+        print("data from post", data)
+        coin = 0
+        if data['proof'] == 'Proof not verified':
+            print("proof not veried, new_proof increment", new_proof)
+
+        elif data['proof'] == 'New Block Forged':
+            coin += 1
+            print(f"New Block Forged. Coined total is {coin}")
 
         # TODO: If the server responds with a 'message' 'New Block Forged'
         # add 1 to the number of coins mined and print it.  Otherwise,
         # print the message from the server.
-        pass
