@@ -85,8 +85,11 @@ class Blockchain(object):
         in an effort to find a number that is a valid proof
         :return: A valid proof for the provided block
         """
+        # Stringify the block and look for a proof.
         block_string = json.dumps(block, sort_keys=True)
 
+        #  Loop through possibilities, checking each one against `valid_proof`
+        # in an effort to find a number that is a valid proof
         proof = 0
         while self.valid_proof(block_string, proof) is False:
             proof += 1
@@ -95,11 +98,15 @@ class Blockchain(object):
 
         # return proof
 
-    @staticmethod
+    @staticmethod #static method decorator: its on the class , not instance. dont need instance of that thing to 
+    #dont need instance of that class to run this method
+    #good: b/c chain is persistent, dont need in memory (if do will create forks)
+    #con: w/out self, can't change state of class variable inside this
     def valid_proof(block_string, proof):
         """
         Validates the Proof:  Does hash(block_string, proof) contain 3
-        leading zeroes?  Return true if the proof is valid
+        leading zeroes?  
+        Return true if the proof is valid
         :param block_string: <string> The stringified block to use to
         check in combination with `proof`
         :param proof: <int?> The value that when combined with the
@@ -110,6 +117,7 @@ class Blockchain(object):
         guess = f'{block_string}{proof}'.encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
 
+        #:return: True if the resulting hash is a valid proof or has the right number of leading zeros, False otherwise
         return guess_hash[:3] == "000"
 # return True or False
 

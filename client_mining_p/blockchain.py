@@ -90,7 +90,7 @@ class Blockchain(object):
         # TODO: Return the hashed block string in hexadecimal format
         return hex_hash
 
-    @property
+    @property #dont have to use invoke() after calling these 
     def last_block(self):
         return self.chain[-1]
 
@@ -140,11 +140,11 @@ node_identifier = str(uuid4()).replace('-', '')
 # Instantiate the Blockchain
 blockchain = Blockchain()
 
-
+"""
 @app.route('/mine', methods=['POST'])
 def mine():
     data = request.get_json()
-    if "proof" not in request.json or "id" not in request.json:
+    if not request.json or "proof" not in request.json or "id" not in request.json:
         response = (
             "Please include proof or id, or make sure it is a post request",
 
@@ -176,7 +176,53 @@ def mine():
     }
 
     return jsonify(response), 200
+"""
+@app.route('/mine', methods=['POST'])
+def mine():
+    values = request.get_json()
+    #breakpoint() here to investigate whats in values & what u think you're getting 
+   
 
+    """
+    * Modify the `mine` endpoint to instead receive and validate or reject a new proof sent by a client.
+    * It should accept a POST
+    * Use `data = request.get_json()` to pull the data out of the POST
+    * Note that `request` and `requests` both exist in this project
+    * Check that 'proof', and 'id' are present
+    * return a 400 error using `jsonify(response)` with a 'message'
+    * Return a message indicating success or failure.  Remember, a valid proof should fail for all senders except the first. (Those who mined in second place should fail)
+    """    
+    
+    required = ['proof', 'id']
+    if not all(k in values for k in required): #nested for loop rt O(2n) 2 constant, n linear for what will be in values
+        response = {'message': 'Youre missing values'}
+        return jsonify(response), 400 
+
+    submitted_proof = values['proof']
+
+    block_string = json.dumps(blockchain.last_block, sort_keys=True)
+  
+    if blockchain.valid_proof(block_string, submitted_proof):
+        #Forge the new Block by adding it to the chain with the proof
+        previous_hash = blockchain.hash(blockchain.last_block)
+        block = blockchain.new_block(submitted_proof, previous_hash)
+
+
+        response = {
+            # TODO: Send a JSON response valid or not valid
+            'new_block': block
+
+                    }
+
+        return jsonify(response), 200
+    else:
+        response ={
+            'message': 'Proof was invalid or already submitted' #will auto reject b/c what a late minr uses as proof for something, may not be correct block
+        }
+        return jsonify(response), 200
+
+#late miner: only first miner that gets correct roof gets credit for it
+#public ledger is just one big chain of blocks
 
 @app.route('/chain', methods=['GET'])
 def full_chain():

@@ -4,9 +4,14 @@ Build a simple wallet app using the front-end technology of your choice.  You wi
 
 This app should:
     * Allow the user to enter, save, or change the `id` used for the program
+        #post, update, id request to server for id 
     * Display the current balance for that user
+        #subset of all transactions belonging to user 
+            -(when they are sender, reduce the total), 
+            -when they are recipient, increase total 
     * Display a list of all transactions for this user, including sender and recipient
+            -list of transactions related to user 
 
 Stretch Goals:
     * Use styling to visually distinguish coins sent and coins received
-    * Paginate the list of transactions if there are more than ten
+    * Paginate the list of transactions if there are more than ten #server 
