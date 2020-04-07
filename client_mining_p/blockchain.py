@@ -90,7 +90,7 @@ class Blockchain(object):
         # TODO: Return the hashed block string in hexadecimal format
         return hex_hash
 
-    @property #dont have to use invoke() after calling these 
+    @property  # dont have to use invoke() after calling these
     def last_block(self):
         return self.chain[-1]
 
@@ -180,8 +180,7 @@ def mine():
 @app.route('/mine', methods=['POST'])
 def mine():
     values = request.get_json()
-    #breakpoint() here to investigate whats in values & what u think you're getting 
-   
+    # breakpoint() here to investigate whats in values & what u think you're getting
 
     """
     * Modify the `mine` endpoint to instead receive and validate or reject a new proof sent by a client.
@@ -191,38 +190,41 @@ def mine():
     * Check that 'proof', and 'id' are present
     * return a 400 error using `jsonify(response)` with a 'message'
     * Return a message indicating success or failure.  Remember, a valid proof should fail for all senders except the first. (Those who mined in second place should fail)
-    """    
-    
+    """
+
     required = ['proof', 'id']
-    if not all(k in values for k in required): #nested for loop rt O(2n) 2 constant, n linear for what will be in values
+    # nested for loop rt O(2n) 2 constant, n linear for what will be in values
+    if not all(k in values for k in required):
         response = {'message': 'Youre missing values'}
-        return jsonify(response), 400 
+        return jsonify(response), 400
 
     submitted_proof = values['proof']
 
     block_string = json.dumps(blockchain.last_block, sort_keys=True)
-  
+
     if blockchain.valid_proof(block_string, submitted_proof):
-        #Forge the new Block by adding it to the chain with the proof
+        # Forge the new Block by adding it to the chain with the proof
         previous_hash = blockchain.hash(blockchain.last_block)
         block = blockchain.new_block(submitted_proof, previous_hash)
 
-
         response = {
             # TODO: Send a JSON response valid or not valid
-            'new_block': block
+            'new_block': block,
+            'message': 'New Block Forged'
 
-                    }
+        }
 
         return jsonify(response), 200
     else:
-        response ={
-            'message': 'Proof was invalid or already submitted' #will auto reject b/c what a late minr uses as proof for something, may not be correct block
+        response = {
+            # will auto reject b/c what a late minr uses as proof for something, may not be correct block
+            'message': 'Proof was invalid or already submitted'
         }
         return jsonify(response), 200
 
-#late miner: only first miner that gets correct roof gets credit for it
-#public ledger is just one big chain of blocks
+# late miner: only first miner that gets correct roof gets credit for it
+# public ledger is just one big chain of blocks
+
 
 @app.route('/chain', methods=['GET'])
 def full_chain():

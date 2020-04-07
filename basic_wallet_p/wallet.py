@@ -88,7 +88,7 @@ This app should:
 # Run forever until interrupted
 coins = 0
 userTotal = 0
-transactionList =[]
+transactionList = []
 print("Starting mining")
 while True:
     r = requests.get(url=node + "/last_block")
@@ -114,7 +114,7 @@ while True:
     new_proof = proof_of_work(block)
     print(f"Proof found: {new_proof}")
     post_data = {"proof": new_proof, "id": id}
-    
+
     r = requests.post(url=node + "/mine", json=post_data)
     print("finished mine")
     try:
@@ -137,31 +137,30 @@ while True:
 
     #total = data['chain'][1]['transactions'][0]['recipient']
     total = data['chain']
-    #total3 = total2[]
-    #print(total)
+    # total3 = total2[]
+    # print(total)
     for chainElement in total:
-          
+
         print("here", chainElement)
         if len(chainElement['transactions']) > 0:
             for i in range(len(chainElement['transactions'])):
                 if chainElement['transactions'][i]['recipient'] == id:
-                    userTotal+= chainElement['transactions'][i]['amount']
+                    userTotal += chainElement['transactions'][i]['amount']
                     transactionList.append(chainElement['transactions'])
                 if chainElement['transactions'][i]['sender'] == id:
                     userTotal -= chainElement['transactions'][i]['amount']
                     transactionList.append(chainElement['transactions'])
-   
+
     print(f"User balance for {id} is {userTotal}")
 
-    ViewTransactions= input("To view list of user transactions, enter [transactions] otherwise enter [skip]:" )
+    ViewTransactions = input(
+        "To view list of user transactions, enter [transactions] otherwise enter [skip]:")
     if "transactions" in ViewTransactions:
         print(transactionList)
     else:
-        pass 
-    
-    
+        pass
 
-    #breakpoint()
+    # breakpoint()
 
 
 def getBalance():
